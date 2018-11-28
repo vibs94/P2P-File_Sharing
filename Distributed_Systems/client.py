@@ -10,6 +10,8 @@ from os import listdir
 from os.path import isfile, join
 from shutil import copyfile
 from itertools import groupby
+import shutil
+
 
 parser = argparse.ArgumentParser(description='Client for Bootstrap Server')
 parser.add_argument('-client', dest='client', action='store', required=True,
@@ -133,8 +135,12 @@ def initFiles():
     file_names = [f for f in listdir(FILES_DIRECTORY) if isfile(join(FILES_DIRECTORY, f))]
     file_words = []
     clientFiles.extend(random.sample(file_names, r))
-    dest_path = username+":files"
-    os.mkdir('node_files/'+dest_path)
+    dest_path = 'node_files/'+username+":files"
+    try:
+        os.mkdir(dest_path)
+    except:
+        shutil.rmtree(dest_path)
+        os.mkdir(dest_path)
     for f in clientFiles:
         copyfile(FILES_DIRECTORY + "/" + f, dest_path + "/" + f)
         words = f.split()
