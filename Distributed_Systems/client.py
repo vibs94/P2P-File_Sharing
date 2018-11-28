@@ -134,7 +134,7 @@ def initFiles():
     file_words = []
     clientFiles.extend(random.sample(file_names, r))
     dest_path = username+":files"
-    os.mkdir(dest_path)
+    os.mkdir('node_files/'+dest_path)
     for f in clientFiles:
         copyfile(FILES_DIRECTORY + "/" + f, dest_path + "/" + f)
         words = f.split()
