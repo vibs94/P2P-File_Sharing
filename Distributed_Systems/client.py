@@ -97,7 +97,7 @@ def inputParser(input):
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peer['ip'], int(peer['port']), message)
     elif text[0] == "SER" and len(text) > 3:
-        hopes = text[-1] - 1
+        hops = int(text[-1]) - 1
         ip = text[1]
         port = text[2]
         file_name = ""
@@ -114,17 +114,19 @@ def inputParser(input):
                 sendUDP(ip, int(port), message)
             else:
                 for neighbor in peers:
-                    message = "SER %s %s %s %d" % (client_ip, client_port, file_name, hopes)
+                    message = "SER %s %s %s %d" % (client_ip, client_port, file_name, hops)
                     message = "%04d %s" % (len(message) + 5, message)
                     sendUDP(neighbor['ip'], int(neighbor['port']), message)
-                    logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hopes))
+                    logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
         else:
             message = "SEROK %d %s %d %d" % (0, client_ip, client_port, hops)
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(ip, int(port), message)
     elif text[0] == "SEROK" and len(text) > 3:
-        if(int(text[1])>0):
-
+        if(int(text[1])==0):
+            print("No file fount")
+        elif(int(text[1])>0):
+            showSearchResults(file_name)
 
 def initFiles():
     r = random.randint(3, 5)
@@ -207,6 +209,7 @@ def registerClient(ip, port, bs_ip, bs_port, username):
         logging.info("Starting UDP Server on %s:%d" % (ip, port))
         udp = UDPServer(ip, port)
         udp.start()
+        initFiles()
         return True
     elif(peers == 9999):
         logging.warning("failed, there is some error in the command check input parameters")
