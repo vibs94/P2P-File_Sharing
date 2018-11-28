@@ -40,6 +40,7 @@ peerTable = []
 peers = []
 clientFiles = []
 word_index = []
+search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
 
 # logging.info("Client: %s:%i" % (client_ip,client_port))
@@ -108,9 +109,11 @@ def inputParser(input):
         for i in range(2,len(text)-1):
             file_name = text[i] + " "
         file_name = file_name.strip()
+        print("##########")
+        print(file_name)
         if(hops > 0):
             files = searchFile(file_name)
-
+            print(files)
             if(len(files) > 0):
                 print(files)
                 message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, hops)
@@ -131,9 +134,9 @@ def inputParser(input):
             sendUDP(ip, int(port), message)
     elif text[0] == "SEROK" and len(text) > 3:
         if(int(text[1])==0):
-            print("No file fount")
+            print("No file found")
         elif(int(text[1])>0):
-            showSearchResults('file_name')
+            showSearchResults(text)
 
 def initFiles():
     r = random.randint(3, 5)
@@ -307,7 +310,8 @@ def searchFile(file_name):
     return result
 
 def showSearchResults(file_name):
-    print ("Files can be downloaded from ")
+    search_results.append(file_name)
+    print(search_results)
 
 def search(file_name):
     files = searchFile(file_name)
@@ -316,7 +320,8 @@ def search(file_name):
         showSearchResults(file_name)
     else:
         for neighbor in peers:
-            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(int(math.log2(len(peerTable)))))
+            # message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(int(math.log2(len(peerTable)))))
+            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, "2")
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(neighbor['ip'], int(neighbor['port']), message)
             # logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], 5))
@@ -337,6 +342,7 @@ def commandParser(command):
         elif text[0] == 'LIST' and len(text) == 1:
             listFiles()
         elif text[0] == 'SEARCH' and len(text) > 1:
+            search_results = []
             search(command[7:])
         else:
             print ("$ Invalid command !!")
