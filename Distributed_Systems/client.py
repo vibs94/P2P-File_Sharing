@@ -1,3 +1,5 @@
+#python3 client.py -client 127.0.0.1:5005 -BS 127.0.0.1:55555 -u me5 -connections 2
+
 import socket
 import argparse
 import threading
@@ -7,6 +9,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 from shutil import copyfile
+from itertools import groupby
 
 parser = argparse.ArgumentParser(description='Client for Bootstrap Server')
 parser.add_argument('-client', dest='client', action='store', required=True,
@@ -34,7 +37,8 @@ connectionsCount = args.connections
 peerTable = []
 peers = []
 clientFiles = []
-cache = []
+word_index = []
+stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
 
 logging.info("Client: %s:%i" % (client_ip,client_port))
 
@@ -92,16 +96,55 @@ def inputParser(input):
             logging.warning("ADD Request Rejected from %s:%s to %s:%d" % (peer['ip'], peer['port'], client_ip, client_port))
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peer['ip'], int(peer['port']), message)
+    elif text[0] == "SER" and len(text) > 3:
+        hopes = text[-1] - 1
+        ip = text[1]
+        port = text[2]
+        file_name = ""
+        for i in range(3,len(text)-1):
+            file_name = text[i] + " "
+        file_name = file_name.strip()
+        if(hopes > 0):
+            files = searchFile(file_name)
+            if(len(files) > 1):
+                message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, hops)
+                for file in files:
+                    message = message + " " + file
+                message = "%04d %s" % (len(message) + 5, message)
+                sendUDP(ip, int(port), message)
+            else:
+                for neighbor in peers:
+                    message = "SER %s %s %s %d" % (client_ip, client_port, file_name, hopes)
+                    message = "%04d %s" % (len(message) + 5, message)
+                    sendUDP(neighbor['ip'], int(neighbor['port']), message)
+                    logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hopes))
+        else:
+            message = "SEROK %d %s %d %d" % (0, client_ip, client_port, hops)
+            message = "%04d %s" % (len(message) + 5, message)
+            sendUDP(ip, int(port), message)
+    elif text[0] == "SEROK" and len(text) > 3:
+        if(int(text[1])>0):
+
 
 def initFiles():
     r = random.randint(3, 5)
     file_names = [f for f in listdir(FILES_DIRECTORY) if isfile(join(FILES_DIRECTORY, f))]
-
+    file_words = []
     clientFiles.extend(random.sample(file_names, r))
     dest_path = username+":files"
     os.mkdir(dest_path)
     for f in clientFiles:
         copyfile(FILES_DIRECTORY + "/" + f, dest_path + "/" + f)
+        words = f.split()
+        for w in words:
+            if(w.lower() not in stockWords):
+                if(w.lower() in file_words):
+                    for w_i in word_index:
+                        if (w_i['word'] == w.lower()):
+                            w_i['files'].append(f)
+                else:
+                    word_index.append({'word': w.lower(), 'files':[f]})
+    print(word_index)
     print("Files assigned for the client.....")
     for i in range(len(clientFiles)):
         print (str(i + 1) + " - " + clientFiles[i])
@@ -123,8 +166,6 @@ class UDPServer(threading.Thread):
             data, addr = self.sock.recvfrom(10240)  # buffer size is 1024 bytes
             logging.info("received message: %s" % data)
             inputParser(data[5:])
-
-
 
 def sendTCP(ip, port, message):
     print("TCP send : ", message)
@@ -162,6 +203,10 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
     if(peers == 0):
         logging.warning("no nodes in the system")
+        logging.info("Successfully Registered !!")
+        logging.info("Starting UDP Server on %s:%d" % (ip, port))
+        udp = UDPServer(ip, port)
+        udp.start()
         return True
     elif(peers == 9999):
         logging.warning("failed, there is some error in the command check input parameters")
@@ -229,6 +274,34 @@ def Unregister(ip, port, bs_ip, bs_port):
     else:
         logging.info("Error while adding new node to routing table!!!")
 
+def searchFile(file_name):
+    serch_result = []
+    for f in clientFiles:
+        if(file_name.lower() == f.lower()):
+            serch_result.append(f)
+    words = file_name.split()
+    for w in words:
+        if(w.lower() not in stockWords):
+            for c_w in word_index:
+                if(c_w['word'].lower() == w.lower):
+                    serch_result.appendAll(c_w['files'])
+    result = [{'key': key, 'count': len(list(group))} for key, group in groupby(a)]
+    result = sorted(result, key = lambda k: k['count'])
+    return result
+
+def showSearchResults(file_name):
+    print ("Files can be downloaded from ")
+
+def search(file_name):
+    files = searchFile(file_name)
+    if(len(files)>1):
+        showSearchResults(file_name)
+    else:
+        for neighbor in peers:
+            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(5))
+            message = "%04d %s" % (len(message) + 5, message)
+            sendUDP(neighbor['ip'], int(neighbor['port']), message)
+            logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], 5))
 
 def commandParser(command):
     text = command.split()
@@ -244,6 +317,8 @@ def commandParser(command):
         elif text[0] == 'LEAVE' and len(text) == 3:
             Unregister(text[1], text[2], client_ip, client_port)
         elif text[0] == 'LIST' and len(text) == 1:
+            listFiles()
+        elif text[0] == 'SEARCH' and len(text) > 1:
             listFiles()
         else:
             print ("$ Invalid command !!")
