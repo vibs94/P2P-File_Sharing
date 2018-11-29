@@ -45,6 +45,8 @@ word_index = []
 search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
 discover_nodes = []
+
+isActive = False
 # logging.info("Client: %s:%i" % (client_ip,client_port))
 
 def sendUDP(ip, port, message):
@@ -57,10 +59,8 @@ def sendUDP(ip, port, message):
 def inputParser(input):
     input = input.decode("utf-8")
     text = input.split()
-    # print(text)
     if text[0] == "JOIN":
         peer = {'ip': text[1], 'port': text[2]}
-
         if peer not in peers:
             peers.append(peer)
             message = "JOINOK 0"
@@ -75,58 +75,43 @@ def inputParser(input):
 
     elif text[0] == "DISCOVER":
 
+        ip = text[1]
+        port = text[2]
+        hops = int(text[3]) - 1
+
         peer = {'ip':text[1],'port':text[2]}
         hops = int(text[3]) -1
         message = "ADD %s %s" % (client_ip, client_port)
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peer['ip'], int(peer['port']), message)
         for neighbor in peers:
-            if(hops > 1):
-                message = "DISCOVER %s %s %s" % (peer['ip'], peer['port'], hops)
+            if hops > 1:
+                message = "DISCOVER %s %s %d" % (peer['ip'], peer['port'], hops)
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(neighbor['ip'], int(neighbor['port']), message)
-        # print(text)
-        # peer = {'ip': text[1], 'port': text[2]}
-        # hops = int(text[3]) - 1
-        # print(peer)
-        # print(peer['port'])
-        # for neighbor in peers:
-        #     message = "ADD %s %s" % (neighbor['ip'], neighbor['port'])
-        #     message = "%04d %s" % (len(message) + 5, message)
-        #     sendUDP(peer['ip'], int(peer['port']), message)
-        #
-        #     if hops > 1:
-        #         message = "DISCOVER %s %d %d" % (peer['ip'], int(peer['port'], hops))
-        #         message = "%04d %s" % (len(message) + 5, message)
-        #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
-        #
-        #         message = "DISCOVER %s %d %d" % (client_ip, client_port, hops)
-        #         message = "%04d %s" % (len(message) + 5, message)
-        #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
+
 
     elif text[0] == "ADD" and len(text) == 3:
-        peer = {'ip': text[1], 'port': text[2]}
 
-        # logging.info(peer)
-        # if peer not in peers:
-        #     peers.append(peer)
+        ip = text[1]
+        port = text[2]
+        peer = {'ip': ip, 'port': port}
+
         discover_nodes.append(peer)
         message = "ADDOK 0"
-        # else:
-        #     message = "ADDOK 9999"
+
         #     logging.warning("ADD Request Rejected from %s:%s to %s:%d" % (peer['ip'], peer['port'], client_ip, client_port))
+
         message = "%04d %s" % (len(message) + 5, message)
-        print("########")
         sendUDP(peer['ip'], int(peer['port']), message)
 
+
     elif text[0] == "SER" and len(text) > 3:
-        print(text)
         hops = int(text[-1])
         ip = text[1]
         port = text[2]
         file_name = ""
-        #ip != client_ip and
-        if (port != str(client_port)):
+        if (ip != client_ip or port != str(client_port)):
             for i in range(2,len(text)-1):
                 file_name = text[i] + " "
             file_name = file_name.strip()
@@ -137,13 +122,11 @@ def inputParser(input):
                 for file in files:
                     message = message + " \'" + file['key'] + "\'"
                 message = "%04d %s" % (len(message) + 5, message)
-                print(message)
                 sendUDP(ip, int(port), message)
             elif(hops > 1):
                 hops = hops - 1
                 for neighbor in peers:
-                    # ip != client_ip and
-                    if (port != str(neighbor['port'])):
+                    if (ip != client_ip or port != str(neighbor['port'])):
                         message = "SER %s %s %s %d" % (ip, port, file_name, hops)
                         message = "%04d %s" % (len(message) + 5, message)
                         sendUDP(neighbor['ip'], int(neighbor['port']), message)
@@ -166,12 +149,19 @@ def initFiles():
     file_names = [f for f in listdir(FILES_DIRECTORY) if isfile(join(FILES_DIRECTORY, f))]
     file_words = []
     clientFiles.extend(random.sample(file_names, r))
-    dest_path = 'node_files/'+username+":files"
+    dest_path = 'node_files/'+username+"_files"
     try:
         os.mkdir(dest_path)
+
     except FileExistsError:
         shutil.rmtree(dest_path)
         os.mkdir(dest_path)
+    try:
+        os.mkdir(dest_path + "/received_files")
+    except FileExistsError:
+        shutil.rmtree(dest_path + "/received_files")
+        os.mkdir(dest_path + "/received_files")
+
     for f in clientFiles:
         copyfile(FILES_DIRECTORY + "/" + f, dest_path + "/" + f)
         words = f.split()
@@ -200,11 +190,40 @@ class UDPServer(threading.Thread):
         self.daemon = True
 
     def run(self):
-        logging.info("USD server started")
+        # logging.info("USD server started")
         while True:
             data, addr = self.sock.recvfrom(10240)  # buffer size is 1024 bytes
-            logging.info("received message: %s" % data)
+            # logging.info("received message: %s" % data)
             inputParser(data[5:])
+
+class TCPServer(threading.Thread):
+    def __init__(self, ip, port):
+        threading.Thread.__init__(self)
+        self.ip = ip
+        self.port = int(port)
+        self.sock = socket.socket(socket.AF_INET,  # Internet
+                                  socket.SOCK_STREAM)  # TCP
+        self.sock.bind((ip, int(port)))
+        self.daemon = True
+        self.sock.listen(5)
+
+
+    def run(self):
+        conn, addr = self.sock.accept()
+        # logging.info("TCP server started")
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            filename = data.decode("utf-8")
+            dest_path = 'node_files/' + username + "_files"
+            abs_path = os.path.abspath(dest_path + "/" + filename)
+            f = open(abs_path, 'rb')
+            l = f.read(1024)
+            while (l):
+                conn.send(l)
+                l = f.read(1024)
+
 
 def sendTCP(ip, port, message):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -220,9 +239,7 @@ def sendTCP(ip, port, message):
     return dataReceived
 
 def joinPeers(ip, port, peersIndex):
-    # print(peers)
     for node in peersIndex:
-        # print (node)
         message = "JOIN %s %s" % (ip, port)
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peerTable[node]['ip'], int(peerTable[node]['port']), message)
@@ -237,14 +254,16 @@ def registerClient(ip, port, bs_ip, bs_port, username):
     response = sendTCP(bs_ip, bs_port, message)
     decodedResponse = response.split()
     peers = int(decodedResponse[2])
-    logging.warning(response)
+    # logging.warning(response)
 
     if(peers == 0):
-        logging.warning("no nodes in the system")
+        # logging.warning("no nodes in the system")
         # logging.info("Successfully Registered !!")
         # logging.info("Starting UDP Server on %s:%d" % (ip, port))
         udp = UDPServer(ip, port)
         udp.start()
+        tcp = TCPServer(ip, str(port) + "0")
+        tcp.start()
         initFiles()
         return True
     elif(peers == 9999):
@@ -271,7 +290,8 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
         udp = UDPServer(ip, port)
         udp.start()
-
+        tcp = TCPServer(ip, str(port) + "0")
+        tcp.start()
         if peers > 1:
             p = random.sample(range(0, peers), connectionsCount)
             # print (p)
@@ -286,31 +306,24 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
 def listFiles():
     if len(clientFiles) == 0 :
-        print("No files found...!")
+        print("$ No files found...!")
     else :
-        print("Files assigned for the client.....")
+        print("$ Files assigned for the client.....")
         for i in range(len(clientFiles)):
             print (str(i + 1) + " - " + clientFiles[i])
 
 def Discover(hops):
-    print("##########")
-    print(int(peers[0]['port']))
+
     discover_nodes.clear()
     if hops > 0:
-        # print("@@@@@@@@@@@@")
         discover = True
         for neighbour in peers:
             message = "DISCOVER %s %s %s" % (client_ip,client_port,hops)
             message = "%04d %s" % (len(message) + 5, message)
-            print(neighbour['port'])
-            print("@@@@@@@@@@@@")
             sendUDP(neighbour['ip'],int(neighbour['port']),message)
 
-    time.sleep(5)
-    print("Discover Nodes ############")
-    print(discover_nodes)
-    print(peers)
-    print(peerTable)
+    print("$ Discovering ...")
+    time.sleep(2)
     for neighbour in peers:
         if not checkStatus(neighbour,discover_nodes):
             peers.remove(neighbour)
@@ -318,7 +331,6 @@ def Discover(hops):
     for node in peerTable:
         if not checkStatus(node,discover_nodes):
             peerTable.remove(node)
-            print(node)
 
     for discover_node in discover_nodes:
         if not checkStatus(discover_node,peerTable):
@@ -326,24 +338,12 @@ def Discover(hops):
     self_node = {'ip':client_ip,'port':str(client_port)}
     if not checkStatus(self_node,peerTable):
         peerTable.append(self_node)
-    print(peers)
-    print(peerTable)
 
-
-
-    # if hops > 0:
-    #     for neighbor in peers:
-    #         message = "DISCOVER %s %s %s" % (client_ip, client_port, hops)
-    #         message = "%04d %s" % (len(message) + 5, message)
-    #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
-    #         # logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
-    # else:
-    #     logging.warning("DISCOVER not sent!! hop < 0")
+    print("$ Routing Tables Updated !")
 
 def checkStatus(peer, list):
     for node in list:
         if(node['ip'] == peer['ip'] and node['port'] == peer['port']):
-            print(peer['port'] +" $$$"+node['port'])
             return True
     return False
 
@@ -354,9 +354,12 @@ def Unregister(ip, port):
     response = sendTCP(bs_ip, bs_port, message)
     code = int(response.split()[2])
     if code == 0:
-        logging.info("Leaving Successfull!!!")
+        isActive = False
+        return True
+        # logging.info("Leaving Successfull!!!")
     else:
-        logging.info("Error while adding new node to routing table!!!")
+        return False
+        # logging.info("Error while adding new node to routing table!!!")
 
 def searchFile(file_name):
     serch_result = []
@@ -392,6 +395,15 @@ def search(file_name):
             sendUDP(neighbor['ip'], int(neighbor['port']), message)
             # logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], 5))
 
+def downloadFile(file):
+    response = sendTCP(file['ip'], int(file['port']), file['file'])
+    dest_path = 'node_files/' + username + "_files"
+    abs_path = os.path.abspath(dest_path + '/received_files/'+file['file'])
+    with open(abs_path, 'wb') as f:
+        f.write(response.encode('utf-8'))
+    f.close()
+    print('$ Successfully downloaded the file')
+
 def commandParser(command):
     text = command.split()
     if len(text):
@@ -402,33 +414,54 @@ def commandParser(command):
             except Exception as e:
                 logging.error(e)
                 logging.error("Hops should be INT")
-                print ("> Hops should be INT")
-        elif text[0] == 'LEAVE' and len(text) == 3:
-            Unregister(client_ip, client_port)
+                print ("$ Hops should be INT")
+            return True
+        elif text[0] == 'LEAVE' and len(text) == 1:
+            state = Unregister(client_ip, client_port)
+            if(state):
+                return False
+            else:
+                return True
         elif text[0] == 'LIST' and len(text) == 1:
             listFiles()
+            return True
         elif text[0] == 'SEARCH' and len(text) > 1:
             search_results.clear()
             search(command[7:])
+            print ("$ Searching......")
             for i in range(1,100000000):
                 i == i
             if(len(search_results)>0):
-                print (search_results)
+                print ("$ Here is the files.....")
+                i = 1
+                for re in search_results:
+                    print("$ "+str(i) + ". "+re['file'])
+                    i = i + 1
+                index = int(input("$ Which file do you want to download?\n$ "))
+                downloadFile(search_results[index-1])
             else:
                 print ("$ No files found! ")
+            return True
         elif text[0] == 'PEERS':
-            print(peerTable)
+            print(" # |      ip     |   port   ")
+            for index,peer in enumerate(peerTable):
+                print(str(index+1)+"  |  "+peer['ip']+"  |   "+peer['port'])
+            return True
+        elif text[0] == 'NODES':
+            print(" # |      ip     |   port   ")
+            for index,peer in enumerate(peers):
+                print(str(index+1)+"  |  "+peer['ip']+"  |   "+peer['port'])
+            return True
         else:
             print ("$ Invalid command !!")
+            return True
 
 
 def main():
     regState = registerClient(client_ip, client_port, bs_ip, bs_port, username)
+    isActive = regState
     print (peers)
-    while regState:
+    while isActive:
         command = str(input("$ "))
-        commandParser(command)
+        isActive = commandParser(command)
 main()
-
-
-
