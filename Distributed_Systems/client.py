@@ -24,7 +24,7 @@ parser.add_argument('-connections', dest='connections', type=int, action='store'
                     default=2, help='No of Connections')
 
 args = parser.parse_args()
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 FILES_DIRECTORY = 'files'
 
@@ -42,6 +42,7 @@ clientFiles = []
 word_index = []
 search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
+isActive = False
 
 # logging.info("Client: %s:%i" % (client_ip,client_port))
 
@@ -183,7 +184,7 @@ class UDPServer(threading.Thread):
         self.daemon = True
 
     def run(self):
-        logging.info("USD server started")
+        # logging.info("USD server started")
         while True:
             data, addr = self.sock.recvfrom(10240)  # buffer size is 1024 bytes
             # logging.info("received message: %s" % data)
@@ -203,7 +204,7 @@ class TCPServer(threading.Thread):
 
     def run(self):
         conn, addr = self.sock.accept()
-        logging.info("TCP server started")
+        # logging.info("TCP server started")
         while True:
             data = conn.recv(1024)
             if not data:
@@ -249,10 +250,10 @@ def registerClient(ip, port, bs_ip, bs_port, username):
     response = sendTCP(bs_ip, bs_port, message)
     decodedResponse = response.split()
     peers = int(decodedResponse[2])
-    logging.warning(response)
+    # logging.warning(response)
 
     if(peers == 0):
-        logging.warning("no nodes in the system")
+        # logging.warning("no nodes in the system")
         # logging.info("Successfully Registered !!")
         # logging.info("Starting UDP Server on %s:%d" % (ip, port))
         udp = UDPServer(ip, port)
@@ -301,9 +302,9 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
 def listFiles():
     if len(clientFiles) == 0 :
-        print("No files found...!")
+        print("$ No files found...!")
     else :
-        print("Files assigned for the client.....")
+        print("$ Files assigned for the client.....")
         for i in range(len(clientFiles)):
             print (str(i + 1) + " - " + clientFiles[i])
 
@@ -324,9 +325,12 @@ def Unregister(ip, port):
     response = sendTCP(bs_ip, bs_port, message)
     code = int(response.split()[2])
     if code == 0:
-        logging.info("Leaving Successfull!!!")
+        isActive = False
+        return True
+        # logging.info("Leaving Successfull!!!")
     else:
-        logging.info("Error while adding new node to routing table!!!")
+        return False
+        # logging.info("Error while adding new node to routing table!!!")
 
 def searchFile(file_name):
     serch_result = []
@@ -369,7 +373,7 @@ def downloadFile(file):
     with open(abs_path, 'wb') as f:
         f.write(response)
     f.close()
-    print('Successfully downloaded the file')
+    print('$ Successfully downloaded the file')
 
 def commandParser(command):
     text = command.split()
@@ -381,34 +385,44 @@ def commandParser(command):
             except Exception as e:
                 logging.error(e)
                 logging.error("Hops should be INT")
-                print ("> Hops should be INT")
-        elif text[0] == 'LEAVE' and len(text) == 3:
-            Unregister(client_ip, client_port)
+                print ("$ Hops should be INT")
+            return True
+        elif text[0] == 'LEAVE' and len(text) == 1:
+            state = Unregister(client_ip, client_port)
+            if(state):
+                return False
+            else:
+                return True
         elif text[0] == 'LIST' and len(text) == 1:
             listFiles()
+            return True
         elif text[0] == 'SEARCH' and len(text) > 1:
             search_results.clear()
             search(command[7:])
+            print ("$ Searching......")
             for i in range(1,100000000):
                 i == i
             if(len(search_results)>0):
-                print ("Here is the files.")
+                print ("$ Here is the files.....")
                 i = 1
                 for re in search_results:
                     print(str(i) + ". "+re['file'])
                     i = i + 1
-                index = int(input("Which file do you want to download?\n$ "))
+                index = int(input("$ Which file do you want to download?\n$ "))
                 downloadFile(search_results[index-1])
             else:
                 print ("$ No files found! ")
+            return True
         else:
             print ("$ Invalid command !!")
+            return True
 
 
 def main():
     regState = registerClient(client_ip, client_port, bs_ip, bs_port, username)
+    isActive = regState
     print (peers)
-    while regState:
+    while isActive:
         command = str(input("$ "))
-        commandParser(command)
+        isActive = commandParser(command)
 main()

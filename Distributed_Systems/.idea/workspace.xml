@@ -51,8 +51,8 @@
       <file leaf-file-name="client.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="386" column="50" lean-forward="true" selection-start-line="386" selection-start-column="50" selection-end-line="386" selection-end-column="50" />
+            <state relative-caret-position="148">
+              <caret line="405" column="48" selection-start-line="405" selection-start-column="48" selection-end-line="405" selection-end-column="48" />
               <folding>
                 <element signature="e#88#101#0" expanded="true" />
               </folding>
@@ -95,6 +95,7 @@
       <find>register</find>
       <find>print</find>
       <find>ENCO</find>
+      <find>log</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -273,8 +274,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="386" column="50" lean-forward="true" selection-start-line="386" selection-start-column="50" selection-end-line="386" selection-end-column="50" />
+        <state relative-caret-position="148">
+          <caret line="405" column="48" selection-start-line="405" selection-start-column="48" selection-end-line="405" selection-end-column="48" />
           <folding>
             <element signature="e#88#101#0" expanded="true" />
           </folding>
