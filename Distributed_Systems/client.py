@@ -12,6 +12,8 @@ from shutil import copyfile
 from itertools import groupby
 import shutil
 import math
+import time
+
 
 parser = argparse.ArgumentParser(description='Client for Bootstrap Server')
 parser.add_argument('-client', dest='client', action='store', required=True,
@@ -42,7 +44,7 @@ clientFiles = []
 word_index = []
 search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
-
+discover_nodes = []
 # logging.info("Client: %s:%i" % (client_ip,client_port))
 
 def sendUDP(ip, port, message):
@@ -55,6 +57,7 @@ def sendUDP(ip, port, message):
 def inputParser(input):
     input = input.decode("utf-8")
     text = input.split()
+    # print(text)
     if text[0] == "JOIN":
         peer = {'ip': text[1], 'port': text[2]}
 
@@ -71,36 +74,53 @@ def inputParser(input):
         sendUDP(peer['ip'], int(peer['port']), message)
 
     elif text[0] == "DISCOVER":
-        peer = {'ip': text[1], 'port': text[2]}
-        hops = int(text[3]) - 1
 
+        peer = {'ip':text[1],'port':text[2]}
+        hops = int(text[3]) -1
+        message = "ADD %s %s" % (client_ip, client_port)
+        message = "%04d %s" % (len(message) + 5, message)
+        sendUDP(peer['ip'], int(peer['port']), message)
         for neighbor in peers:
-            message = "ADD %s %s" % (neighbor['ip'], neighbor['port'])
-            message = "%04d %s" % (len(message) + 5, message)
-            sendUDP(peer['ip'], int(peer['port']), message)
-
-            if hops > 1:
-                message = "DISCOVER %s %d %d" % (peer['ip'], int(peer['port'], hops))
+            if(hops > 1):
+                message = "DISCOVER %s %s %s" % (peer['ip'], peer['port'], hops)
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(neighbor['ip'], int(neighbor['port']), message)
-
-                message = "DISCOVER %s %d %d" % (client_ip, client_port, hops)
-                message = "%04d %s" % (len(message) + 5, message)
-                sendUDP(neighbor['ip'], int(neighbor['port']), message)
+        # print(text)
+        # peer = {'ip': text[1], 'port': text[2]}
+        # hops = int(text[3]) - 1
+        # print(peer)
+        # print(peer['port'])
+        # for neighbor in peers:
+        #     message = "ADD %s %s" % (neighbor['ip'], neighbor['port'])
+        #     message = "%04d %s" % (len(message) + 5, message)
+        #     sendUDP(peer['ip'], int(peer['port']), message)
+        #
+        #     if hops > 1:
+        #         message = "DISCOVER %s %d %d" % (peer['ip'], int(peer['port'], hops))
+        #         message = "%04d %s" % (len(message) + 5, message)
+        #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
+        #
+        #         message = "DISCOVER %s %d %d" % (client_ip, client_port, hops)
+        #         message = "%04d %s" % (len(message) + 5, message)
+        #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
 
     elif text[0] == "ADD" and len(text) == 3:
         peer = {'ip': text[1], 'port': text[2]}
+
         # logging.info(peer)
-        if peer not in peers:
-            peers.append(peer)
-            message = "ADDOK 0"
-        else:
-            message = "ADDOK 9999"
-            logging.warning("ADD Request Rejected from %s:%s to %s:%d" % (peer['ip'], peer['port'], client_ip, client_port))
+        # if peer not in peers:
+        #     peers.append(peer)
+        discover_nodes.append(peer)
+        message = "ADDOK 0"
+        # else:
+        #     message = "ADDOK 9999"
+        #     logging.warning("ADD Request Rejected from %s:%s to %s:%d" % (peer['ip'], peer['port'], client_ip, client_port))
         message = "%04d %s" % (len(message) + 5, message)
+        print("########")
         sendUDP(peer['ip'], int(peer['port']), message)
 
     elif text[0] == "SER" and len(text) > 3:
+        print(text)
         hops = int(text[-1])
         ip = text[1]
         port = text[2]
@@ -183,7 +203,7 @@ class UDPServer(threading.Thread):
         logging.info("USD server started")
         while True:
             data, addr = self.sock.recvfrom(10240)  # buffer size is 1024 bytes
-            # logging.info("received message: %s" % data)
+            logging.info("received message: %s" % data)
             inputParser(data[5:])
 
 def sendTCP(ip, port, message):
@@ -194,7 +214,7 @@ def sendTCP(ip, port, message):
         logging.warning("Connection refused.")
         exit()
     soc.send(message.encode('utf-8'))
-    dataReceived = soc.recv(10240)
+    dataReceived = soc.recv(10240).decode('utf-8')
     soc.close()
     # logging.info("Data received: %s" % dataReceived)
     return dataReceived
@@ -273,14 +293,59 @@ def listFiles():
             print (str(i + 1) + " - " + clientFiles[i])
 
 def Discover(hops):
+    print("##########")
+    print(int(peers[0]['port']))
+    discover_nodes.clear()
     if hops > 0:
-        for neighbor in peers:
-            message = "DISCOVER %s %s %s" % (client_ip, client_port, hops)
+        # print("@@@@@@@@@@@@")
+        discover = True
+        for neighbour in peers:
+            message = "DISCOVER %s %s %s" % (client_ip,client_port,hops)
             message = "%04d %s" % (len(message) + 5, message)
-            sendUDP(neighbor['ip'], int(neighbor['port']), message)
-            # logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
-    else:
-        logging.warning("DISCOVER not sent!! hop < 0")
+            print(neighbour['port'])
+            print("@@@@@@@@@@@@")
+            sendUDP(neighbour['ip'],int(neighbour['port']),message)
+
+    time.sleep(5)
+    print("Discover Nodes ############")
+    print(discover_nodes)
+    print(peers)
+    print(peerTable)
+    for neighbour in peers:
+        if not checkStatus(neighbour,discover_nodes):
+            peers.remove(neighbour)
+
+    for node in peerTable:
+        if not checkStatus(node,discover_nodes):
+            peerTable.remove(node)
+            print(node)
+
+    for discover_node in discover_nodes:
+        if not checkStatus(discover_node,peerTable):
+            peerTable.append(discover_node)
+    self_node = {'ip':client_ip,'port':str(client_port)}
+    if not checkStatus(self_node,peerTable):
+        peerTable.append(self_node)
+    print(peers)
+    print(peerTable)
+
+
+
+    # if hops > 0:
+    #     for neighbor in peers:
+    #         message = "DISCOVER %s %s %s" % (client_ip, client_port, hops)
+    #         message = "%04d %s" % (len(message) + 5, message)
+    #         sendUDP(neighbor['ip'], int(neighbor['port']), message)
+    #         # logging.info("DISCOVER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
+    # else:
+    #     logging.warning("DISCOVER not sent!! hop < 0")
+
+def checkStatus(peer, list):
+    for node in list:
+        if(node['ip'] == peer['ip'] and node['port'] == peer['port']):
+            print(peer['port'] +" $$$"+node['port'])
+            return True
+    return False
 
 
 def Unregister(ip, port):
@@ -351,6 +416,8 @@ def commandParser(command):
                 print (search_results)
             else:
                 print ("$ No files found! ")
+        elif text[0] == 'PEERS':
+            print(peerTable)
         else:
             print ("$ Invalid command !!")
 
