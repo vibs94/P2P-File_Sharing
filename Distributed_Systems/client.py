@@ -40,20 +40,20 @@ peerTable = []
 peers = []
 clientFiles = []
 word_index = []
+search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
 
 # logging.info("Client: %s:%i" % (client_ip,client_port))
 
 def sendUDP(ip, port, message):
     # logging.info("recipient UDP client: %s:%i" % (ip,port))
-    # logging.info("message: %s" % message)
+    # logging.info("message: %s to %s" % (message, port))
     sockUDP = socket.socket(socket.AF_INET,  # Internet
                             socket.SOCK_DGRAM)  # UDP
     sockUDP.sendto(message.encode('utf-8'), (ip, int(port)))
 
 def inputParser(input):
     input = input.decode("utf-8")
-    print(input)
     text = input.split()
     if text[0] == "JOIN":
         peer = {'ip': text[1], 'port': text[2]}
@@ -105,35 +105,39 @@ def inputParser(input):
         ip = text[1]
         port = text[2]
         file_name = ""
-        for i in range(2,len(text)-1):
-            file_name = text[i] + " "
-        file_name = file_name.strip()
-        if(hops > 0):
+        #ip != client_ip and
+        if (port != str(client_port)):
+            for i in range(2,len(text)-1):
+                file_name = text[i] + " "
+            file_name = file_name.strip()
             files = searchFile(file_name)
-
-            if(len(files) > 0):
-                print(files)
+            if (len(files) > 0):
                 message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, hops)
                 for file in files:
-                    message = message + " " + file['key']
+                    message = message + " \'" + file['key'] + "\'"
                 message = "%04d %s" % (len(message) + 5, message)
+                print(message)
                 sendUDP(ip, int(port), message)
-            else:
+            elif(hops > 1):
                 hops = hops - 1
                 for neighbor in peers:
-                    message = "SER %s %s %s %d" % (client_ip, client_port, file_name, hops)
-                    message = "%04d %s" % (len(message) + 5, message)
-                    sendUDP(neighbor['ip'], int(neighbor['port']), message)
+                    # ip != client_ip and
+                    if (port != str(neighbor['port'])):
+                        message = "SER %s %s %s %d" % (ip, port, file_name, hops)
+                        message = "%04d %s" % (len(message) + 5, message)
+                        sendUDP(neighbor['ip'], int(neighbor['port']), message)
                     # logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
-        else:
-            message = "SEROK %d %s %d %d" % (0, client_ip, client_port, hops)
-            message = "%04d %s" % (len(message) + 5, message)
-            sendUDP(ip, int(port), message)
+            else:
+                message = "SEROK %d %s %d %d" % (0, client_ip, client_port, hops)
+                message = "%04d %s" % (len(message) + 5, message)
+                sendUDP(ip, int(port), message)
     elif text[0] == "SEROK" and len(text) > 3:
-        if(int(text[1])==0):
-            print("No file fount")
-        elif(int(text[1])>0):
-            showSearchResults('file_name')
+        if(int(text[1])>0):
+            ip = text[2]
+            port = str(text[3])
+            text = input.split("\'")
+            for i in range(1,len(text),2):
+                addSearchResults(ip, port, text[i])
 
 def initFiles():
     r = random.randint(3, 5)
@@ -158,7 +162,6 @@ def initFiles():
                 else:
                     word_index.append({'word': w.lower(), 'files':[f]})
                     file_words.append(w.lower())
-    print(word_index)
     print("Files assigned for the client.....")
     for i in range(len(clientFiles)):
         print (str(i + 1) + " - " + clientFiles[i])
@@ -182,7 +185,6 @@ class UDPServer(threading.Thread):
             inputParser(data[5:])
 
 def sendTCP(ip, port, message):
-    print("TCP send : ", message)
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         soc.connect((ip, int(port)))
@@ -290,7 +292,6 @@ def Unregister(ip, port):
         logging.info("Error while adding new node to routing table!!!")
 
 def searchFile(file_name):
-    print(file_name)
     serch_result = []
     for f in clientFiles:
         if(file_name.lower() == f.lower()):
@@ -299,24 +300,25 @@ def searchFile(file_name):
     for w in words:
         if(w.lower() not in stockWords):
             for c_w in word_index:
-                print(c_w['word'].lower() + " " + w.lower())
                 if (c_w['word'].lower() == w.lower()):
                     serch_result.extend(c_w['files'])
     result = [{'key': key, 'count': len(list(group))} for key, group in groupby(serch_result)]
     result = sorted(result, key = lambda k: k['count'])
     return result
 
-def showSearchResults(file_name):
-    print ("Files can be downloaded from ")
+def addSearchResults(ip, port, file_name):
+    result = {'ip': ip, 'port': str(port) + "0", 'file': file_name}
+    if(result not in search_results):
+        search_results.append(result)
 
 def search(file_name):
     files = searchFile(file_name)
-    print(files)
     if(len(files)>0):
-        showSearchResults(file_name)
+        for file in files:
+            addSearchResults(client_ip, client_port, file['key'])
     else:
         for neighbor in peers:
-            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(int(math.log2(len(peerTable)))))
+            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(3))
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(neighbor['ip'], int(neighbor['port']), message)
             # logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], 5))
@@ -337,7 +339,14 @@ def commandParser(command):
         elif text[0] == 'LIST' and len(text) == 1:
             listFiles()
         elif text[0] == 'SEARCH' and len(text) > 1:
+            search_results.clear()
             search(command[7:])
+            for i in range(1,100000000):
+                i == i
+            if(len(search_results)>0):
+                print (search_results)
+            else:
+                print ("$ No files found! ")
         else:
             print ("$ Invalid command !!")
 
@@ -346,7 +355,7 @@ def main():
     regState = registerClient(client_ip, client_port, bs_ip, bs_port, username)
     print (peers)
     while regState:
-        command = str(input("$"))
+        command = str(input("$ "))
         commandParser(command)
 main()
 
