@@ -108,7 +108,7 @@ def inputParser(input):
         port = text[2]
         file_name = ""
         #ip != client_ip and
-        if (port != str(client_port)):
+        if (ip != client_ip or port != str(client_port)):
             for i in range(2,len(text)-1):
                 file_name = text[i] + " "
             file_name = file_name.strip()
@@ -125,7 +125,7 @@ def inputParser(input):
                 hops = hops - 1
                 for neighbor in peers:
                     # ip != client_ip and
-                    if (port != str(neighbor['port'])):
+                    if (ip != client_ip or port != str(neighbor['port'])):
                         message = "SER %s %s %s %d" % (ip, port, file_name, hops)
                         message = "%04d %s" % (len(message) + 5, message)
                         sendUDP(neighbor['ip'], int(neighbor['port']), message)
