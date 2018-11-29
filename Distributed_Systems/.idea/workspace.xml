@@ -51,10 +51,10 @@
       <file leaf-file-name="client.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="148">
-              <caret line="405" column="48" selection-start-line="405" selection-start-column="48" selection-end-line="405" selection-end-column="48" />
+            <state relative-caret-position="164">
+              <caret line="235" column="40" selection-start-line="235" selection-start-column="40" selection-end-line="235" selection-end-column="40" />
               <folding>
-                <element signature="e#88#101#0" expanded="true" />
+                <element signature="e#85#98#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -104,6 +104,9 @@
         <option value="$PROJECT_DIR$/../../distributed sytems/CS4262-Distributed-Content-Searching/client.py" />
         <option value="$PROJECT_DIR$/restServer.py" />
         <option value="$PROJECT_DIR$/runClient.py" />
+        <option value="$PROJECT_DIR$/files/Happy Feet" />
+        <option value="$PROJECT_DIR$/node_files/me0_files/Turn Up The Music" />
+        <option value="$PROJECT_DIR$/node_files/me0_files/Windows XP" />
         <option value="$PROJECT_DIR$/client.py" />
       </list>
     </option>
@@ -126,6 +129,17 @@
             <path>
               <item name="Distributed_Systems" type="b2602c69:ProjectViewProjectNode" />
               <item name="Distributed_Systems" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Distributed_Systems" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Distributed_Systems" type="462c0819:PsiDirectoryNode" />
+              <item name="node_files" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Distributed_Systems" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Distributed_Systems" type="462c0819:PsiDirectoryNode" />
+              <item name="node_files" type="462c0819:PsiDirectoryNode" />
+              <item name="me0_files" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -191,7 +205,7 @@
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16612022" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16612022" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50054646" side_tool="true" weight="0.32900432" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32900432" />
@@ -199,7 +213,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.49945354" visible="true" weight="0.32900432" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49945354" visible="true" weight="0.32900432" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -219,7 +233,7 @@
         <state relative-caret-position="1515">
           <caret line="109" column="15" selection-start-line="109" selection-start-column="6" selection-end-line="109" selection-end-column="15" />
           <folding>
-            <element signature="e#88#101#0" expanded="true" />
+            <element signature="e#85#98#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -229,7 +243,7 @@
         <state relative-caret-position="3720">
           <caret line="248" selection-start-line="248" selection-end-line="248" />
           <folding>
-            <element signature="e#88#101#0" expanded="true" />
+            <element signature="e#85#98#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -239,7 +253,7 @@
         <state relative-caret-position="3600">
           <caret line="248" selection-start-line="248" selection-end-line="248" />
           <folding>
-            <element signature="e#88#101#0" expanded="true" />
+            <element signature="e#85#98#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -272,12 +286,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/node_files/me0_files/received_files/Super Mario">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_files/me0_files/Turn Up The Music">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="21" selection-start-column="21" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/files/Happy Feet">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="3" selection-start-line="1" selection-start-column="3" selection-end-line="1" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_files/me0_files/Windows XP">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="15" selection-start-column="15" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="405" column="48" selection-start-line="405" selection-start-column="48" selection-end-line="405" selection-end-column="48" />
+        <state relative-caret-position="164">
+          <caret line="235" column="40" selection-start-line="235" selection-start-column="40" selection-end-line="235" selection-end-column="40" />
           <folding>
-            <element signature="e#88#101#0" expanded="true" />
+            <element signature="e#85#98#0" expanded="true" />
           </folding>
         </state>
       </provider>
