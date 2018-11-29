@@ -209,9 +209,12 @@ class TCPServer(threading.Thread):
 
 
     def run(self):
-        conn, addr = self.sock.accept()
-        # logging.info("TCP server started")
         while True:
+            try:
+                conn, addr = self.sock.accept()
+            except Exception as e:
+                logging.warning(e)
+        # logging.info("TCP server started")
             data = conn.recv(1024)
             if not data:
                 break
@@ -223,13 +226,15 @@ class TCPServer(threading.Thread):
             while (l):
                 conn.send(l)
                 l = f.read(1024)
+            conn.close()
 
 
 def sendTCP(ip, port, message):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         soc.connect((ip, int(port)))
-    except ConnectionRefusedError:
+    except ConnectionRefusedError as e:
+        logging.warning(e)
         logging.warning("Connection refused.")
         exit()
     soc.send(message.encode('utf-8'))
