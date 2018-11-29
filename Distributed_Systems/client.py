@@ -209,9 +209,10 @@ class TCPServer(threading.Thread):
 
 
     def run(self):
-        conn, addr = self.sock.accept()
+
         # logging.info("TCP server started")
         while True:
+            conn, addr = self.sock.accept()
             data = conn.recv(1024)
             if not data:
                 break
@@ -219,10 +220,9 @@ class TCPServer(threading.Thread):
             dest_path = 'node_files/' + username + "_files"
             abs_path = os.path.abspath(dest_path + "/" + filename)
             f = open(abs_path, 'rb')
-            l = f.read(1024)
-            while (l):
-                conn.send(l)
-                l = f.read(1024)
+            l = f.read()
+            conn.send(l)
+            conn.close()
 
 
 def sendTCP(ip, port, message):
@@ -233,7 +233,7 @@ def sendTCP(ip, port, message):
         logging.warning("Connection refused.")
         exit()
     soc.send(message.encode('utf-8'))
-    dataReceived = soc.recv(10240).decode('utf-8')
+    dataReceived = soc.recv(1024*1024*12).decode('utf-8')
     soc.close()
     # logging.info("Data received: %s" % dataReceived)
     return dataReceived
