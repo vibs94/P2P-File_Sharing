@@ -112,6 +112,7 @@ def inputParser(input):
             file_name = file_name.strip()
             files = searchFile(file_name)
             if (len(files) > 0):
+
                 message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, hops)
                 for file in files:
                     message = message + " \'" + file['key'] + "\'"
@@ -138,6 +139,7 @@ def inputParser(input):
             text = input.split("\'")
             for i in range(1,len(text),2):
                 addSearchResults(ip, port, text[i])
+
 
 def initFiles():
     r = random.randint(3, 5)
@@ -311,6 +313,7 @@ def addSearchResults(ip, port, file_name):
     if(result not in search_results):
         search_results.append(result)
 
+
 def search(file_name):
     files = searchFile(file_name)
     if(len(files)>0):
@@ -319,6 +322,7 @@ def search(file_name):
     else:
         for neighbor in peers:
             message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(3))
+
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(neighbor['ip'], int(neighbor['port']), message)
             # logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], 5))

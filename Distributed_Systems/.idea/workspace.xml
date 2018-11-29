@@ -51,8 +51,8 @@
       <file leaf-file-name="client.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1498">
-              <caret line="320" column="83" selection-start-line="320" selection-start-column="83" selection-end-line="320" selection-end-column="83" />
+            <state relative-caret-position="-3002">
+              <caret line="135" selection-start-line="135" selection-end-line="135" />
               <folding>
                 <element signature="e#85#98#0" expanded="true" />
               </folding>
@@ -237,8 +237,8 @@
     <entry file="file://$PROJECT_DIR$/../../distributed sytems/CS4262-Distributed-Content-Searching/client.py" />
     <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1498">
-          <caret line="320" column="83" selection-start-line="320" selection-start-column="83" selection-end-line="320" selection-end-column="83" />
+        <state relative-caret-position="-3002">
+          <caret line="135" selection-start-line="135" selection-end-line="135" />
           <folding>
             <element signature="e#85#98#0" expanded="true" />
           </folding>
