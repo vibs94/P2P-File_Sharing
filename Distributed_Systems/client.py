@@ -478,8 +478,16 @@ def commandParser(command):
                 for re in search_results:
                     print(str(i) + ".   "+re['ip']+"   |   "+re['port']+'  |    '+re['file'])
                     i = i + 1
-                index = int(input("$ Which file do you want to download?\n$ "))
-                downloadFile(search_results[index-1])
+                isAlpha = True
+                while isAlpha:
+                    try:
+                        index = int(input("$ Which file do you want to download?\n$ "))
+                        downloadFile(search_results[index - 1])
+                        isAlpha = False
+                    except ValueError:
+                        print("$ Enter an integer!")
+                    except IndexError:
+                        print("$ Invalid input!")
             else:
                 print ("$ No files found! ")
             return True
