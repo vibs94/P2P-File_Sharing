@@ -1,0 +1,14 @@
+WARNING:0012 REGOK 0
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
