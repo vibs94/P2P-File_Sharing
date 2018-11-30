@@ -179,9 +179,7 @@ def initFiles():
                 else:
                     word_index.append({'word': w.lower(), 'files':[f]})
                     file_words.append(w.lower())
-    print("Files assigned for the client.....")
-    for i in range(len(clientFiles)):
-        print (str(i + 1) + " - " + clientFiles[i])
+    listFiles()
 
 
 class UDPServer(threading.Thread):
@@ -336,11 +334,11 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
 def listFiles():
     if len(clientFiles) == 0 :
-        print("$ No files found...!")
+        print("$ No files assigned!")
     else :
-        print("$ Files assigned for the client.....")
+        print("$ Assigned Files")
         for i in range(len(clientFiles)):
-            print (str(i + 1) + " - " + clientFiles[i])
+            print (str(i + 1) + ". " + clientFiles[i])
 
 def Discover(hops):
 
@@ -448,7 +446,7 @@ def downloadFile(file):
 def commandParser(command):
     text = command.split()
     if len(text):
-        if text[0] == "DISCOVER" and len(text) == 2:
+        if text[0] == "GOSSIP" and len(text) == 2:
             try:
                 hops = eval(text[1])
                 Discover(hops)
@@ -464,7 +462,7 @@ def commandParser(command):
                 # return False
             else:
                 return True
-        elif text[0] == 'LIST' and len(text) == 1:
+        elif text[0] == 'FILES' and len(text) == 1:
             listFiles()
             return True
         elif text[0] == 'SEARCH' and len(text) > 1:
