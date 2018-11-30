@@ -1,0 +1,14 @@
+INFO:Client: 127.0.0.1:5005
+INFO:Data received: 0048 REGOK 2 127.0.0.1 5001 me 127.0.0.1 5002 me
+WARNING:0048 REGOK 2 127.0.0.1 5001 me 127.0.0.1 5002 me
+INFO:No of peers connected to BS: 2
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5005
+INFO:USD server started
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0024 JOIN 127.0.0.1 5005 to 5001
+INFO:JOIN Request Sent from 127.0.0.1:5005 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0024 JOIN 127.0.0.1 5005 to 5002
+INFO:JOIN Request Sent from 127.0.0.1:5005 to 127.0.0.1:5002
+INFO:Data received: 0012 UNROK 0

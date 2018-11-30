@@ -2,6 +2,7 @@
 
 import socket
 import argparse
+import sys
 import threading
 import random
 import logging
@@ -241,6 +242,7 @@ class Gossip(threading.Thread):
     def __init__(self, hops):
         threading.Thread.__init__(self)
         self.hops = hops
+        self.daemon = True
 
     def run(self):
         while(True):
@@ -458,7 +460,8 @@ def commandParser(command):
         elif text[0] == 'LEAVE' and len(text) == 1:
             state = Unregister(client_ip, client_port)
             if(state):
-                return False
+                sys.exit(0)
+                # return False
             else:
                 return True
         elif text[0] == 'LIST' and len(text) == 1:
@@ -473,8 +476,9 @@ def commandParser(command):
             if(len(search_results)>0):
                 print ("$ Here is the files.....")
                 i = 1
+                print(" # |      ip     |   port   |    name   ")
                 for re in search_results:
-                    print("$ "+str(i) + ". "+re['file'])
+                    print(str(i) + ".   "+re['ip']+"   |   "+re['port']+'  |    '+re['file'])
                     i = i + 1
                 index = int(input("$ Which file do you want to download?\n$ "))
                 downloadFile(search_results[index-1])

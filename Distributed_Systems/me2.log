@@ -1,0 +1,14 @@
+INFO:Client: 127.0.0.1:5002
+INFO:Data received: 0030 REGOK 1 127.0.0.1 5001 me
+WARNING:0030 REGOK 1 127.0.0.1 5001 me
+INFO:No of peers connected to BS: 1
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5002
+INFO:USD server started
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0024 JOIN 127.0.0.1 5002 to 5001
+INFO:JOIN Request Sent from 127.0.0.1:5002 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0030 DISCOVER 127.0.0.1 5002 5 to 5001
+INFO:Discovering ...
+INFO:Routing Tables Updated !

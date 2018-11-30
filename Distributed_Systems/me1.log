@@ -12,3 +12,72 @@ INFO:Discovering ...
 INFO:Routing Tables Updated !
 INFO:Discovering ...
 INFO:Routing Tables Updated !
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Data received: 0012 UNROK 0
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Data received: 0012 UNROK 0
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Data received: 0012 UNROK 0
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Data received: 0012 UNROK 0
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5001
+INFO:USD server started
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Discovering ...
+INFO:Routing Tables Updated !
+INFO:Client: 127.0.0.1:5001
+INFO:Data received: 0015 REGOK 9999
+WARNING:0015 REGOK 9999
+WARNING:failed, there is some error in the command check input parameters
