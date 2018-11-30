@@ -228,6 +228,15 @@ class TCPServer(threading.Thread):
             conn.send(l)
             conn.close()
 
+class Gossip(threading.Thread):
+    def __init__(self, hops):
+        threading.Thread.__init__(self)
+        self.hops = hops
+
+    def run(self):
+        while(True):
+            Discover(self.hops)
+            time.sleep(20)
 
 def sendTCP(ip, port, message):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -270,6 +279,8 @@ def registerClient(ip, port, bs_ip, bs_port, username):
         tcp = TCPServer(ip, str(port) + "0")
         tcp.start()
         initFiles()
+        gossip = Gossip(5)
+        gossip.start()
         return True
     elif(peers == 9999):
         logging.warning("failed, there is some error in the command check input parameters")
@@ -307,6 +318,8 @@ def registerClient(ip, port, bs_ip, bs_port, username):
 
         # initial assigning of files
         initFiles()
+        gossip = Gossip(5)
+        gossip.start()
         return True
 
 def listFiles():
@@ -344,7 +357,7 @@ def Discover(hops):
     if not checkStatus(self_node,peerTable):
         peerTable.append(self_node)
 
-    print("$ Routing Tables Updated !")
+    print("$ Routing Tables Updated !\n$ ")
 
 def checkStatus(peer, list):
     for node in list:
