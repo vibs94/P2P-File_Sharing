@@ -452,7 +452,7 @@ def commandParser(command):
             for index,peer in enumerate(peerTable):
                 print(str(index+1)+"  |  "+peer['ip']+"  |   "+peer['port'])
             return True
-        elif text[0] == 'NODES':
+        elif text[0] == 'NEIGHBOURS':
             print(" # |      ip     |   port   ")
             for index,peer in enumerate(peers):
                 print(str(index+1)+"  |  "+peer['ip']+"  |   "+peer['port'])
