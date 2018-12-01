@@ -50,6 +50,7 @@ word_index = []
 search_results = []
 stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
 discover_nodes = []
+max_hops = 3
 
 isActive = False
 logging.info("Client: %s:%i" % (client_ip,client_port))
@@ -123,7 +124,7 @@ def inputParser(input):
             files = searchFile(file_name)
             if (len(files) > 0):
 
-                message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, hops)
+                message = "SEROK %d %s %d %d" % (len(files), client_ip, client_port, max_hops + 1 - hops)
                 for file in files:
                     message = message + " \'" + file['key'] + "\'"
                 message = "%04d %s" % (len(message) + 5, message)
@@ -137,16 +138,17 @@ def inputParser(input):
                         sendUDP(neighbor['ip'], int(neighbor['port']), message)
                     logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
             else:
-                message = "SEROK %d %s %d %d" % (0, client_ip, client_port, hops)
+                message = "SEROK %d %s %d %d" % (0, client_ip, client_port, max_hops + 1 - hops)
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(ip, int(port), message)
     elif text[0] == "SEROK" and len(text) > 3:
         if(int(text[1])>0):
             ip = text[2]
             port = str(text[3])
+            hops = int(text[4])
             text = input.split("\'")
             for i in range(1,len(text),2):
-                addSearchResults(ip, port, text[i])
+                addSearchResults(ip, port, hops, text[i])
 
 
 def initFiles():
@@ -354,7 +356,7 @@ def Discover(hops):
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(neighbour['ip'],int(neighbour['port']),message)
 
-    logging.info("Discovering ...")
+    logging.info("Gossiping...")
     time.sleep(2)
     for neighbour in peers:
         if not checkStatus(neighbour,discover_nodes):
@@ -408,8 +410,8 @@ def searchFile(file_name):
     result = sorted(result, key = lambda k: k['count'])
     return result
 
-def addSearchResults(ip, port, file_name):
-    result = {'ip': ip, 'port': str(port) + "0", 'file': file_name}
+def addSearchResults(ip, port, hops, file_name):
+    result = {'ip': ip, 'port': str(port) + "0", 'hops': int(hops), 'file': file_name}
     if(result not in search_results):
         search_results.append(result)
 
@@ -418,10 +420,10 @@ def search(file_name):
     files = searchFile(file_name)
     if(len(files)>0):
         for file in files:
-            addSearchResults(client_ip, client_port, file['key'])
+            addSearchResults(client_ip, client_port, 0, file['key'])
     else:
         for neighbor in peers:
-            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(3))
+            message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(max_hops))
 
             message = "%04d %s" % (len(message) + 5, message)
             sendUDP(neighbor['ip'], int(neighbor['port']), message)
@@ -478,9 +480,9 @@ def commandParser(command):
             if(len(search_results)>0):
                 print ("$ Here is the files.....")
                 i = 1
-                print(" # |      ip     |   port   |    name   ")
+                print(" # |      ip     |   port   |    hops   |    name   ")
                 for re in search_results:
-                    print(str(i) + ".   "+re['ip']+"   |   "+re['port']+'  |    '+re['file'])
+                    print(str(i) + ".   " + re['ip']+"   |   "+re['port']+'  |    ' + str(re['hops']) + '      |    ' + re['file'])
                     i = i + 1
                 isAlpha = True
                 while isAlpha:

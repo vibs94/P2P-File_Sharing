@@ -1,0 +1,64 @@
+INFO:Client: 127.0.0.1:5000
+WARNING:[Errno 111] Connection refused
+WARNING:Connection refused.
+INFO:Client: 127.0.0.1:5000
+WARNING:[Errno 111] Connection refused
+WARNING:Connection refused.
+INFO:Client: 127.0.0.1:5000
+WARNING:[Errno 111] Connection refused
+WARNING:Connection refused.
+INFO:Client: 127.0.0.1:5000
+WARNING:[Errno 111] Connection refused
+WARNING:Connection refused.
+INFO:Client: 127.0.0.1:5000
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5000
+INFO:USD server started
+INFO:Client: 127.0.0.1:5000
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5000
+INFO:USD server started
+INFO:Client: 127.0.0.1:5000
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5000
+INFO:USD server started
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Client: 127.0.0.1:5000
+INFO:Data received: 0012 REGOK 0
+WARNING:0012 REGOK 0
+WARNING:no nodes in the system
+INFO:Successfully Registered !!
+INFO:Starting UDP Server on 127.0.0.1:5000
+INFO:USD server started
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:Gossiping...
+INFO:Routing Tables Updated !
+INFO:received message: b'0024 JOIN 127.0.0.1 5001'
+INFO:JOIN Request Accepted from 127.0.0.1:5001 to 127.0.0.1:5000
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0013 JOINOK 0 to 5001
+INFO:TCP server started
+INFO:Data received: 
