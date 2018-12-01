@@ -396,3 +396,87 @@ INFO:recipient UDP client: 127.0.0.1:5001
 INFO:message: 0012 ADDOK 0 to 5001
 INFO:received message: b'0012 ADDOK 0'
 INFO:Routing Tables Updated !
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5002 5'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5002
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5002 4 to 5002
+INFO:received message: b'0012 ADDOK 0'
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5002 3'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5002
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5002 2 to 5002
+INFO:received message: b'0012 ADDOK 0'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5001 5 to 5002
+INFO:Gossiping...
+INFO:received message: b'0023 ADD 127.0.0.1 5002'
+WARNING:ADD Request Rejected from 127.0.0.1:5002 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0012 ADDOK 0 to 5002
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5001 4'
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5001 3 to 5002
+INFO:received message: b'0023 ADD 127.0.0.1 5001'
+WARNING:ADD Request Rejected from 127.0.0.1:5001 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0012 ADDOK 0 to 5001
+INFO:received message: b'0023 ADD 127.0.0.1 5002'
+WARNING:ADD Request Rejected from 127.0.0.1:5002 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0012 ADDOK 0 to 5002
+INFO:received message: b'0012 ADDOK 0'
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5001 2'
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5001
+INFO:received message: b'0023 ADD 127.0.0.1 5001'
+WARNING:ADD Request Rejected from 127.0.0.1:5001 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0012 ADDOK 0 to 5001
+INFO:received message: b'0012 ADDOK 0'
+INFO:Routing Tables Updated !
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5002 5'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5002
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5002 4 to 5002
+INFO:received message: b'0012 ADDOK 0'
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5002 3'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5002
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5002 2 to 5002
+INFO:received message: b'0012 ADDOK 0'
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5001 5 to 5002
+INFO:Gossiping...
+INFO:received message: b'0023 ADD 127.0.0.1 5002'
+WARNING:ADD Request Rejected from 127.0.0.1:5002 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0012 ADDOK 0 to 5002
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5001 4'
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0030 DISCOVER 127.0.0.1 5001 3 to 5002
+INFO:received message: b'0023 ADD 127.0.0.1 5001'
+WARNING:ADD Request Rejected from 127.0.0.1:5001 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0012 ADDOK 0 to 5001
+INFO:received message: b'0012 ADDOK 0'
+INFO:received message: b'0023 ADD 127.0.0.1 5002'
+WARNING:ADD Request Rejected from 127.0.0.1:5002 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5002
+INFO:message: 0012 ADDOK 0 to 5002
+INFO:received message: b'0030 DISCOVER 127.0.0.1 5001 2'
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0023 ADD 127.0.0.1 5001 to 5001
+INFO:received message: b'0023 ADD 127.0.0.1 5001'
+WARNING:ADD Request Rejected from 127.0.0.1:5001 to 127.0.0.1:5001
+INFO:recipient UDP client: 127.0.0.1:5001
+INFO:message: 0012 ADDOK 0 to 5001
+INFO:received message: b'0012 ADDOK 0'
+INFO:Routing Tables Updated !
