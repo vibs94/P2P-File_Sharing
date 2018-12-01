@@ -156,8 +156,12 @@ def initFiles():
     clientFiles.extend(random.sample(file_names, r))
     dest_path = 'node_files/'+username+"_files"
     try:
+        os.mkdir('node_files')
+    except FileExistsError:
+        shutil.rmtree('node_files')
+        os.mkdir('node_files')
+    try:
         os.mkdir(dest_path)
-
     except FileExistsError:
         shutil.rmtree(dest_path)
         os.mkdir(dest_path)
