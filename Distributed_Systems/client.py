@@ -39,8 +39,13 @@ bs_ip = args.bs.split(':')[0]
 bs_port = int(args.bs.split(':')[1])
 username = args.username
 connectionsCount = args.connections
+log_file = username+".log"
 
-logging.basicConfig(filename=username+".log",format='%(levelname)s:%(message)s', level=logging.INFO)
+
+if(os.path.isfile(log_file)):
+    os.remove(log_file)
+
+logging.basicConfig(filename=log_file,format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
 peerTable = []
@@ -48,12 +53,16 @@ peers = []
 clientFiles = []
 word_index = []
 search_results = []
-stockWords = ['of', 'for', 'the', 'up', 'a', 'and']
+search_files = []
+search_times = [0, 0]
+message_counts = [0, 0, 0, 0]
+stockWords = []
 discover_nodes = []
 max_hops = 3
-
+queries = []
 isActive = False
 logging.info("Client: %s:%i" % (client_ip,client_port))
+hops_count = [0, 0]
 
 def sendUDP(ip, port, message):
     logging.info("recipient UDP client: %s:%i" % (ip,port))
@@ -80,7 +89,8 @@ def inputParser(input):
         sendUDP(peer['ip'], int(peer['port']), message)
 
     elif text[0] == "DISCOVER":
-
+        logging.info("A Gossiping Message")
+        message_counts[3] = message_counts[3] + 1
         ip = text[1]
         port = text[2]
         hops = int(text[3]) - 1
@@ -90,13 +100,16 @@ def inputParser(input):
         message = "ADD %s %s" % (client_ip, client_port)
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peer['ip'], int(peer['port']), message)
+        logging.info("A Gossiping Message")
+        message_counts[3] = message_counts[3] + 1
         for neighbor in peers:
             if hops > 1:
+
                 message = "DISCOVER %s %s %d" % (peer['ip'], peer['port'], hops)
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(neighbor['ip'], int(neighbor['port']), message)
-
-
+                logging.info("A Gossiping Message")
+                message_counts[3] = message_counts[3] + 1
     elif text[0] == "ADD" and len(text) == 3:
 
         ip = text[1]
@@ -110,9 +123,11 @@ def inputParser(input):
 
         message = "%04d %s" % (len(message) + 5, message)
         sendUDP(peer['ip'], int(peer['port']), message)
-
-
+        logging.info("A Gossiping Message")
+        message_counts[3] = message_counts[3] + 1
     elif text[0] == "SER" and len(text) > 3:
+        logging.info("Message Received " + input + " by node " + client_ip + ":" + str(client_port))
+        message_counts[0] = message_counts[0] + 1
         hops = int(text[-1])
         ip = text[1]
         port = text[2]
@@ -129,6 +144,8 @@ def inputParser(input):
                     message = message + " \'" + file['key'] + "\'"
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(ip, int(port), message)
+                logging.info("Message Sent " + message + " by node " + client_ip + ":" + str(client_port))
+                message_counts[2] = message_counts[2] + 1
             elif(hops > 1):
                 hops = hops - 1
                 for neighbor in peers:
@@ -136,17 +153,26 @@ def inputParser(input):
                         message = "SER %s %s %s %d" % (ip, port, file_name, hops)
                         message = "%04d %s" % (len(message) + 5, message)
                         sendUDP(neighbor['ip'], int(neighbor['port']), message)
+                        logging.info("Message Forwarded " + message + " by node " + client_ip + ":" + str(client_port))
+                        message_counts[1] = message_counts[1] + 1
                     logging.info("SER Request to %s:%s with %s hops" % (neighbor['ip'], neighbor['port'], hops))
             else:
                 message = "SEROK %d %s %d %d" % (0, client_ip, client_port, max_hops + 1 - hops)
                 message = "%04d %s" % (len(message) + 5, message)
                 sendUDP(ip, int(port), message)
+                logging.info("Message Sent " + message + " by node " + client_ip + ":" + str(client_port))
+                message_counts[2] = message_counts[2] + 1
     elif text[0] == "SEROK" and len(text) > 3:
+        search_times[1] = int(round(time.time() * 1000000))
+        hops = int(text[4])
+        logging.info("Message Received " + input + " by node " + client_ip + ":" + str(client_port))
+        message_counts[0] = message_counts[0] + 1
         if(int(text[1])>0):
             ip = text[2]
             port = str(text[3])
-            hops = int(text[4])
             text = input.split("\'")
+            hops_count[0] = hops_count[0] + hops
+            hops_count[1] = hops_count[1] + 1
             for i in range(1,len(text),2):
                 addSearchResults(ip, port, hops, text[i])
 
@@ -157,10 +183,7 @@ def initFiles():
     file_words = []
     clientFiles.extend(random.sample(file_names, r))
     dest_path = 'node_files/'+username+"_files"
-    try:
-        os.mkdir('node_files')
-    except FileExistsError:
-        shutil.rmtree('node_files')
+    if (not os.path.isdir("node_files")):
         os.mkdir('node_files')
     try:
         os.mkdir(dest_path)
@@ -411,17 +434,23 @@ def searchFile(file_name):
     return result
 
 def addSearchResults(ip, port, hops, file_name):
+    file = {'ip': ip, 'port': str(port) + "0", 'file': file_name}
     result = {'ip': ip, 'port': str(port) + "0", 'hops': int(hops), 'file': file_name}
-    if(result not in search_results):
+    if(file not in search_files):
+        search_files.append(file)
         search_results.append(result)
 
 
 def search(file_name):
     files = searchFile(file_name)
     if(len(files)>0):
+        search_times[0] = int(round(time.time() * 1000000))
         for file in files:
+            hops_count[1] = hops_count[1] + 1
             addSearchResults(client_ip, client_port, 0, file['key'])
+        search_times[1] = int(round(time.time() * 1000000))
     else:
+        search_times[0] = int(round(time.time() * 1000000))
         for neighbor in peers:
             message = "SER %s %s %s %s" % (client_ip, client_port, file_name, str(max_hops))
 
@@ -473,9 +502,13 @@ def commandParser(command):
             return True
         elif text[0] == 'SEARCH' and len(text) > 1:
             search_results.clear()
+            search_files.clear()
+            search_times.clear()
+            search_times.append(0)
+            search_times.append(0)
             search(command[7:])
             print ("$ Searching......")
-            for i in range(1,100000000):
+            for i in range(1,10000000):
                 i == i
             if(len(search_results)>0):
                 print ("$ Here is the files.....")
@@ -487,8 +520,9 @@ def commandParser(command):
                 isAlpha = True
                 while isAlpha:
                     try:
-                        index = int(input("$ Which file do you want to download?\n$ "))
-                        downloadFile(search_results[index - 1])
+                        index = int(input("$ Which file do you want to download? Enter 0 if you do not want to download.\n$ "))
+                        if(index):
+                            downloadFile(search_results[index - 1])
                         isAlpha = False
                     except ValueError:
                         print("$ Enter an integer!")
@@ -496,6 +530,7 @@ def commandParser(command):
                         print("$ Invalid input!")
             else:
                 print ("$ No files found! ")
+            print("$ Searching time: " + str(search_times[1] - search_times[0]) + " microseconds")
             return True
         elif text[0] == 'PEERS':
             print(" # |      ip     |   port   ")
@@ -512,11 +547,54 @@ def commandParser(command):
             return True
 
 
-def main():
+def commandLine():
     regState = registerClient(client_ip, client_port, bs_ip, bs_port, username)
     isActive = regState
     print (peers)
     while isActive:
         command = str(input("$ "))
         isActive = commandParser(command)
-main()
+
+def main():
+    regState = registerClient(client_ip, client_port, bs_ip, bs_port, username)
+    text_file = open("Queries.txt", "r")
+    queries = text_file.read().strip().split('\n')
+    text_file.close()
+    print(" # |      ip     |   port   ")
+    for index, peer in enumerate(peers):
+        print(str(index + 1) + "  |  " + peer['ip'] + "  |   " + peer['port'])
+    while(regState):
+        start = int(input("$ Start? [1/0]\n$ "))
+        if(start):
+            print("    query     |      latency     |     hops   |     files     ")
+            for q in queries:
+                search_results.clear()
+                search_files.clear()
+                search_times.clear()
+                search_times.append(0)
+                search_times.append(0)
+                hops_count.clear()
+                hops_count.append(0)
+                hops_count.append(0)
+                search(q)
+                for i in range(1, 100000000):
+                    i == i
+                print("    " + q + "     |     " + str(search_times[1] - search_times[0]) + "     |     " + str(hops_count[0]) + "    |     " + str(hops_count[1]))
+        status = int(input("$ Status? [1/0]\n$ "))
+        if(status):
+            print("    received     |      forwarded     |     sent   |      gossip    ")
+            print("    " + str(message_counts[0]) + "        |        " + str(message_counts[1]) + "        |        " + str(message_counts[2]) + "         |        " + str(message_counts[3]))
+        print(" # |      ip     |   port   ")
+        for index, peer in enumerate(peers):
+            print(str(index + 1) + "  |  " + peer['ip'] + "  |   " + peer['port'])
+        isLeave = int(input("$ Leave? [1/0]\n$ "))
+        if(isLeave):
+            isUnreg = Unregister(client_ip, client_port)
+            if (isUnreg):
+                print("Left!")
+                sys.exit(0)
+    else:
+        print("Registration failed!")
+
+
+commandLine()
